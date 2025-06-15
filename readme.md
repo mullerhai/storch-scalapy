@@ -14,7 +14,7 @@ conda activate scapy
 
 ```scala 3
 
-libraryDependencies += "io.github.mullerhai" % "storch-scalapy_3" % "0.1.2-1.15.1"
+libraryDependencies += "io.github.mullerhai" % "storch-scalapy_3" % "0.1.3-1.15.1"
 ```
 
 ## java startup opts config python 

@@ -45,6 +45,24 @@ def main(): Unit =
   val mypy = py.module("numpy")
   val result = mypy.zeros(5)
   print(s"hello numpy ${result}")
+
+
+  val transformers = py.module("transformers")
+
+  val gpt2Tokenizer = transformers.GPT2Tokenizer.from_pretrained("gpt2")
+  gpt2Tokenizer.pad_token = gpt2Tokenizer.eos_token
+
+  println(gpt2Tokenizer)
+  println(gpt2Tokenizer.eos_token)
+  println(gpt2Tokenizer.pad_token)
+  println(gpt2Tokenizer.pad_token_id)
+  println(gpt2Tokenizer.bos_token)
+  println(gpt2Tokenizer.bos_token_id)
+  println(gpt2Tokenizer.eos_token_id)
+//  val gpt2 = transformers.GPT2LMHeadModel.from_pretrained(
+//      "gpt2",
+//      state_dict = th.as[py.Dynamic].load("gpt_model.pt")
+//    )
   //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
   // to see how IntelliJ IDEA suggests fixing it.
   (1 to 5).map(println)
