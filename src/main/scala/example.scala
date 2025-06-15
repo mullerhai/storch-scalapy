@@ -1,3 +1,4 @@
+import ai.kien.python.Python
 import torch.scalapy.py
 //import me.shadaj.scalapy.py.SeqConverters
 import py.PyQuote
@@ -10,8 +11,40 @@ def main(): Unit =
 //    props => props.foreach { case (k, v) => System.setProperty(k, v) }
 //  )
 
-  val mypy = py.module("mypy")
-  print("hello")
+//  System.setProperty("scalapy.python.library", "python310")
+//  System.setProperty("scalapy.python.programname", "C:\\Users\\hai71\\AppData\\Local\\Microsoft\\WindowsApps\\python3.10.exe")
+//  System.setProperty("jna.library.path", "C:\\Users\\hai71\\AppData\\Local\\Microsoft\\WindowsApps")
+//  lazy val python = Python("C:\\Users\\hai71\\AppData\\Local\\Microsoft\\WindowsApps\\python3.10.exe")
+
+
+  System.setProperty("PYTHONHOME", "C:\\Users\\hai71\\anaconda3\\envs\\scapy")
+  System.setProperty("PYTHONPATH", "C:\\Users\\hai71\\anaconda3\\envs\\scapy\\Lib")
+  System.setProperty("scalapy.python.library", "python312")
+  System.setProperty("scalapy.python.programname", "C:\\Users\\hai71\\anaconda3\\envs\\scapy\\python.exe")
+  System.setProperty("jna.library.path", "C:\\Users\\hai71\\anaconda3\\envs\\scapy")
+  lazy val python = Python("C:\\Users\\hai71\\anaconda3\\envs\\scapy\\python.exe")
+
+  lazy val javaOpts = python.scalapyProperties.get.map {
+    case (k, v) => s"""-D$k=$v"""
+  }.toSeq
+  lazy val ldflags = python.ldflags.get
+  lazy val ldflagsStr = ldflags.mkString(" ")
+  lazy val ldflagsStrWin = ldflags.mkString(" ")
+  lazy val ldflagsStrNix = ldflags.mkString(" ")
+
+
+  println(s"javaOpts: ${javaOpts.mkString(" \r\n")}")
+  println(ldflagsStr)
+  println(ldflagsStrWin)
+  println(ldflagsStrNix)
+  println(python.scalapyProperties)
+  println(python.ldflags)
+  println(python.scalapyProperties.get)
+  println(python.ldflags.get)
+//  println(python.scalapyProperties.get.map {
+  val mypy = py.module("numpy")
+  val result = mypy.zeros(5)
+  print(s"hello numpy ${result}")
   //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
   // to see how IntelliJ IDEA suggests fixing it.
   (1 to 5).map(println)

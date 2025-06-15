@@ -2,6 +2,7 @@ package torch.scalapy.interpreter
 
 import com.sun.jna
 import com.sun.jna.Native
+
 import java.nio.charset.Charset
 
 object Platform {

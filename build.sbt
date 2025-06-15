@@ -1,7 +1,7 @@
-ThisBuild / version := "0.1.0-1.15.1"
+
+ThisBuild / version := "0.1.2-1.15.1"
 
 ThisBuild / scalaVersion := "3.6.4"
-
 lazy val root = (project in file("."))
   .settings(
     name := "storch-scalapy",
@@ -34,14 +34,15 @@ import ai.kien.python.Python
 //lazy val python = Python("<optional-path-to-a-python-interpreter-executable>")
 
 //lazy val python = Python("C:\\Users\\hai71\\AppData\\Local\\Microsoft\\WindowsApps\\python3.10.exe")
-lazy val python = Python("C:\\Users\\hai71\\anaconda3\\envs\\hei\\python.exe")
+lazy val python = Python("C:\\Users\\hai71\\anaconda3\\envs\\scapy\\python.exe")
 
 lazy val javaOpts = python.scalapyProperties.get.map {
   case (k, v) => s"""-D$k=$v"""
 }.toSeq
+
 javaOptions ++= javaOpts
 // https://mvnrepository.com/artifact/dev.scalapy/scalapy-core
-libraryDependencies += "dev.scalapy" %% "scalapy-core" % "0.5.3+14-95e6ab08"
+//libraryDependencies += "dev.scalapy" %% "scalapy-core" % "0.5.3+14-95e6ab08"
 libraryDependencies += "ai.kien" %% "python-native-libs" % "0.2.4"
 import sbt.*
 import Keys.*
@@ -49,16 +50,7 @@ import sbt.Def.settings
 
 import scala.collection.immutable.Seq
 
-//lazy val root = project
-//  .enablePlugins(NoPublishPlugin)
-//  .in(file("."))
-////  .aggregate(core, vision, examples, docs)
-//  .settings(
-//    javaCppVersion := (ThisBuild / javaCppVersion).value,
-////    csrCacheDirectory := file("D:\\coursier"),
-//  )
-
-ThisBuild / tlBaseVersion := "0.1.0-1.15.1" // your current series x.y
+ThisBuild / tlBaseVersion := "0.1.2-1.15.1" // your current series x.y
 //ThisBuild / CoursierCache := file("D:\\coursier")
 ThisBuild / organization := "io.github.mullerhai" //"dev.storch"
 ThisBuild / organizationName := "storch.dev"
@@ -68,9 +60,7 @@ ThisBuild / developers := List(
   // your GitHub handle and name
   tlGitHubDev("mullerhai", "mullerhai")
 )
-ThisBuild / version := "0.1.0-1.15.1"
 
-ThisBuild / scalaVersion := "3.6.4"
 ThisBuild / tlSonatypeUseLegacyHost := false
 
 import xerial.sbt.Sonatype.sonatypeCentralHost
@@ -101,7 +91,7 @@ val pytorchVersion =  "2.5.1"// "2.1.2" 2.5.1-1.5.11"
 val cudaVersion = "12.6-9.5"  //"12.4.99" // "12.3-8.9"
 val openblasVersion = "0.3.28"// "0.3.26"
 val mklVersion = "2025.0"//"2024.0"
-ThisBuild / scalaVersion := "3.6.2"
+ThisBuild / scalaVersion := "3.6.4"
 ThisBuild / javaCppVersion := "1.5.11"//"1.5.10"
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
@@ -121,9 +111,18 @@ libraryDependencies += ("com.storm-enroute" %% "scalameter" % "0.21" % Test excl
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.3.0-alpha.1" % Test
 //libraryDependencies +=   "io.github.mullerhai" % "core_3" % "0.3.5-1.15.1"
 //libraryDependencies +=   "dev.storch" % "vision_3" % "0.2.3-1.15.1"
+libraryDependencies += "org.scalameta" %% "scalameta" % "4.13.6"
+libraryDependencies += "net.java.dev.jna" % "jna" % "5.17.0"
+//libraryDependencies += "com.lihaoyi" %% "fansi" % "0.5.0"
 libraryDependencies +=  "org.scalameta" %% "munit" % "0.7.29" //% Test
 libraryDependencies +=  "org.scalameta" %% "munit-scalacheck" % "0.7.29" // % Test
 excludeDependencies += ExclusionRule(organization = "org.scala-lang.modules", name = "scala-collection-compat_2.13")
+//excludeDependencies += ExclusionRule(organization = "dev.scalapy", name = "scalapy-core")
+//excludeDependencies += ExclusionRule(organization = "dev.scalapy", name = "scalapy-core_3")
+excludeDependencies += ExclusionRule(organization = "com.lihaoyi", name = "sourcecode_2.13")
+// https://mvnrepository.com/artifact/com.lihaoyi/sourcecode
+libraryDependencies += "com.lihaoyi" %% "sourcecode" % "0.4.3-M5"
+//libraryDependencies += "com.sun.jna" % "jna" % "3.0.9"
 ThisBuild  / assemblyMergeStrategy := {
   case v if v.contains("module-info.class")   => MergeStrategy.discard
   case v if v.contains("UnusedStub")          => MergeStrategy.first
