@@ -1,0 +1,102 @@
+package torch.scalapy.readwrite
+
+import torch.scalapy.interpreter.CPythonInterpreter.{throwErrorIfOccured, withGil}
+import torch.scalapy.interpreter.Platform.Pointer
+import torch.scalapy.interpreter.{CPythonAPI, CPythonInterpreter, Platform, PyValue}
+import torch.scalapy.py
+import torch.scalapy.py.|
+import torch.scalapy.readwrite.TupleWriters
+import torch.scalapy.readwrite.FunctionWriters
+import scala.reflect.ClassTag
+
+abstract class Writer[T] {
+  // no guarantees about references
+  def write(v: T): PyValue = withGil(PyValue.fromNew(writeNative(v)))
+
+  // always returns a PyValue that is owned by the caller and has no other references
+  // assumes that the GIL is held
+  def writeNative(v: T): Platform.Pointer = {
+    val written = write(v)
+    CPythonAPI.Py_IncRef(written.underlying)
+    written.underlying
+  }
+}
+
+object Writer extends TupleWriters with FunctionWriters {
+  @inline def write[A](value: A)(implicit writer: Writer[A]): PyValue = writer.write(value)
+  @inline def writeNative[A](value: A)(implicit writer: Writer[A]): Platform.Pointer = writer.writeNative(value)
+
+  implicit def anyWriter[T <: py.Any]: Writer[T] = new Writer[T] {
+    override def writeNative(v: T): Platform.Pointer = {
+      CPythonAPI.Py_IncRef(v.__scalapy_value.underlying)
+      v.__scalapy_value.underlying
+    }
+  }
+
+  implicit def unionWriter[A, B](implicit aClass: ClassTag[A], bClass: ClassTag[B], aWriter: Writer[A], bWriter: Writer[B]): Writer[A | B] = new Writer[A | B] {
+    override def writeNative(v: A | B): Platform.Pointer = {
+      aClass.unapply(v.value) match {
+        case Some(a) => aWriter.writeNative(a)
+        case _ => bWriter.writeNative(v.value.asInstanceOf[B])
+      }
+    }
+  }
+
+  implicit val unitWriter: Writer[Unit] = new Writer[Unit] {
+    override def writeNative(v: Unit): Platform.Pointer = {
+      CPythonAPI.Py_IncRef(CPythonInterpreter.noneValue.underlying)
+      CPythonInterpreter.noneValue.underlying
+    }
+  }
+
+  implicit val byteWriter: Writer[Byte] = new Writer[Byte] {
+    override def writeNative(v: Byte): Platform.Pointer = CPythonAPI.PyLong_FromLongLong(v)
+  }
+
+  implicit val intWriter: Writer[Int] = new Writer[Int] {
+    override def writeNative(v: Int): Platform.Pointer = CPythonAPI.PyLong_FromLongLong(v)
+  }
+
+  implicit val longWriter: Writer[Long] = new Writer[Long] {
+    override def writeNative(v: Long): Platform.Pointer = CPythonAPI.PyLong_FromLongLong(v)
+  }
+
+  implicit val doubleWriter: Writer[Double] = new Writer[Double] {
+    override def writeNative(v: Double): Platform.Pointer = CPythonAPI.PyFloat_FromDouble(v)
+  }
+
+  implicit val floatWriter: Writer[Float] = new Writer[Float] {
+    override def writeNative(v: Float): Platform.Pointer = CPythonAPI.PyFloat_FromDouble(v)
+  }
+
+  implicit val booleanWriter: Writer[Boolean] = new Writer[Boolean] {
+    override def writeNative(v: Boolean): Platform.Pointer = CPythonAPI.PyBool_FromLong(Platform.intToCLong(if (v) 1 else 0))
+  }
+
+  implicit val stringWriter: Writer[String] = new Writer[String] {
+    override def writeNative(v: String): Platform.Pointer = CPythonInterpreter.toNewString(v)
+  }
+
+  implicit def seqWriter[A, CC[_]](implicit elemWriter: Writer[A], ev: CC[A] => Seq[A]): Writer[CC[A]] = new Writer[CC[A]] {
+    override def writeNative(v: CC[A]): Pointer = CPythonInterpreter.createListCopy(ev(v), elemWriter.writeNative)
+  }
+
+  implicit def mapWriter[K, V](implicit kWriter: Writer[K], vWriter: Writer[V]): Writer[Map[K, V]] = new Writer[Map[K, V]] {
+    override def write(map: Map[K, V]): PyValue = {
+      val obj = CPythonInterpreter.newDictionary()
+      map.foreach { case (k, v) =>
+        CPythonInterpreter.updateBracket(obj, kWriter.write(k), vWriter.write(v))
+      }
+
+      obj
+    }
+  }
+
+  implicit val bytesWriter: Writer[Array[Byte]] = new Writer[Array[Byte]] {
+    override def writeNative(v: Array[Byte]): Platform.Pointer = {
+      val buffer = CPythonAPI.PyBytes_FromStringAndSize(Platform.getArrayStartPointer(v), Platform.intToCSize(v.length))
+      throwErrorIfOccured()
+      buffer
+    }
+  }
+}
