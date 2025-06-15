@@ -10,6 +10,9 @@
 ```bash
 conda create -n scapy python=3.12 numpy pandas
 conda activate scapy
+
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126  -i  https://pypi.tuna.tsinghua.edu.cn/simple
+pip3 install datasets transformers timm  supervision trackers -i  https://pypi.tuna.tsinghua.edu.cn/simple  
 ````
 
 ```scala 3
