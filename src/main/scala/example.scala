@@ -1,6 +1,6 @@
 import ai.kien.python.Python
 import torch.scalapy.py
-//import me.shadaj.scalapy.py.SeqConverters
+import torch.scalapy.numpy.NumPy
 import py.PyQuote
 import torch.scalapy.py.AnyConverters//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 @main
@@ -42,10 +42,16 @@ def main(): Unit =
   println(python.scalapyProperties.get)
   println(python.ldflags.get)
 //  println(python.scalapyProperties.get.map {
-  val mypy = py.module("numpy")
+  val mypy = py.module("numpy")  //.as[NumPy]
   val result = mypy.zeros(5)
   print(s"hello numpy ${result}")
-
+//  py.local {
+//    val np = py.module("numpy").as[NumPy]
+//    val mat = np.array[Double](Seq(
+//      Seq(1, 2),
+//      Seq(3, 4)
+//    ))
+//    println(mat)    }
 
   val transformers = py.module("transformers")
 

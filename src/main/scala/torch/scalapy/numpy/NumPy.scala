@@ -4,9 +4,9 @@ import scala.reflect.ClassTag
 import torch.scalapy.py
 import torch.scalapy.interpreter.{PyValue}
 import torch.scalapy.readwrite.{Reader, Writer}
-
+//trait Numpy:
 @py.native
-trait NumPy extends py.Object {
+class NumPy extends py.Object {
   def asarray[T: ClassTag](s: Seq[T])(using writer: Writer[T], reader: Reader[T]): NDArray[T] = {
     as[py.Dynamic].asarray(s).as[NDArray[T]]
   }
@@ -29,7 +29,7 @@ trait NumPy extends py.Object {
 
   def ones(size: Int): NDArray[Double] = as[py.Dynamic].ones(size).as[NDArray[Double]]
 
-  def zeroes(size: Int): NDArray[Double] = as[py.Dynamic].zeros(size).as[NDArray[Double]]
+  def zeros(size: Int): NDArray[Double] = as[py.Dynamic].zeros(size).as[NDArray[Double]]
 
   def random: NumPyRandom = as[py.Dynamic].random.asInstanceOf[NumPyRandom]
 
